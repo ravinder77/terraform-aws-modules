@@ -1,16 +1,16 @@
 
 # --- Random Password --------
 resource "random_password" "master" {
-  length = 24
-  special = true
+  length           = 24
+  special          = true
   override_special = "!#$%&*()-_=+[]{}<>:?"
 }
 
 # ----- Secret Manager ---------
 resource "aws_secretsmanager_secret" "rds" {
-  name =  "${var.identifier}/rds/master"
+  name                    = "${var.identifier}/rds/master"
   recovery_window_in_days = 7
-  tags = local.common_tags
+  tags                    = local.common_tags
 }
 
 resource "aws_secretsmanager_secret_version" "rds" {
@@ -18,18 +18,18 @@ resource "aws_secretsmanager_secret_version" "rds" {
   secret_string = jsonencode({
     username = var.username
     password = random_password.master.result
-    host = aws_db_instance.main.address
-    port = local.port
-    db_name = var.db_name
+    host     = aws_db_instance.main.address
+    port     = local.port
+    db_name  = var.db_name
   })
 }
 
 # ----- KMS Key for encryption at rest ------
 resource "aws_kms_key" "rds" {
-  description = "KMS key for ${var.identifier} RDS"
+  description             = "KMS key for ${var.identifier} RDS"
   deletion_window_in_days = 10
-  enable_key_rotation = true
-  tags = local.common_tags
+  enable_key_rotation     = true
+  tags                    = local.common_tags
 }
 
 resource "aws_kms_alias" "rds" {
@@ -66,16 +66,16 @@ resource "aws_db_parameter_group" "main" {
 
 # ----Security Group -------
 resource "aws_security_group" "rds_sg" {
-  name = "${var.db_name}-subnet-group"
+  name        = "${var.db_name}-subnet-group"
   description = "RDS security group for ${var.identifier}"
-  vpc_id = var.vpc_id
+  vpc_id      = var.vpc_id
 
   dynamic "ingress" {
     for_each = var.allowed_security_group_ids
     content {
-      from_port = local.port
-      to_port = local.port
-      protocol = "tcp"
+      from_port                = local.port
+      to_port                  = local.port
+      protocol                 = "tcp"
       source_security_group_id = ingress.value
     }
   }
@@ -85,27 +85,27 @@ resource "aws_security_group" "rds_sg" {
 resource "aws_db_instance" "main" {
   identifier = var.identifier
 
-  engine = var.engine
+  engine         = var.engine
   engine_version = var.engine_version
   instance_class = var.instance_class
 
-  db_name = var.db_name
+  db_name  = var.db_name
   username = var.username
   password = random_password.master.result
 
   port = local.port
 
-  allocated_storage = var.allocated_storage
+  allocated_storage     = var.allocated_storage
   max_allocated_storage = var.max_allocated_storage
-  storage_type = "gp3"
-  storage_encrypted = true
-  kms_key_id = aws_kms_key.rds.arn
+  storage_type          = "gp3"
+  storage_encrypted     = true
+  kms_key_id            = aws_kms_key.rds.arn
 
-  multi_az = var.multi_az
-  db_subnet_group_name = aws_db_subnet_group.main.name
-  parameter_group_name = aws_db_parameter_group.main.name
+  multi_az               = var.multi_az
+  db_subnet_group_name   = aws_db_subnet_group.main.name
+  parameter_group_name   = aws_db_parameter_group.main.name
   vpc_security_group_ids = [aws_security_group.rds_sg.id]
-  publicly_accessible = false
+  publicly_accessible    = false
 
   backup_retention_period = var.backup_retention_period
   backup_window           = "03:00-04:00"
@@ -129,7 +129,6 @@ resource "aws_db_instance" "main" {
   }
 
 }
-
 
 # ─── Read replica (optional) ─────────────────────────────────────────────────
 resource "aws_db_instance" "replica" {

@@ -1,35 +1,41 @@
 
 variable "identifier" {
   description = "Unique identifier for the RDS instance"
-  type = string
+  type        = string
 }
 
 variable "engine" {
   description = "Database Engine"
-  type = string
-  default = "postgres"
+  type        = string
+  default     = "postgres"
   validation {
-    condition = contains(["postgres", "mysql, mariadb"], var.engine)
+    condition     = contains(["postgres", "mysql", "mariadb"], var.engine)
     error_message = "Engine must be postgres, mysql, or mariadb."
   }
 }
 
 variable "engine_version" {
   description = "Engine Version"
-  type = string
-  default = "17.2"
+  type        = string
+  default     = "15.7"
+}
+
+variable "parameter_group_family" {
+  description = "Override the DB parameter group family. Leave null to infer from engine."
+  type        = string
+  default     = null
 }
 
 variable "instance_class" {
   description = "RDS instance class"
-  type = string
-  default = "db.t3.medium"
+  type        = string
+  default     = "db.t3.medium"
 }
 
 variable "allocated_storage" {
   description = "Initial storage in GB"
-  type = number
-  default = 20
+  type        = number
+  default     = 20
 }
 
 variable "max_allocated_storage" {
@@ -40,13 +46,13 @@ variable "max_allocated_storage" {
 
 variable "db_name" {
   description = "Name of the database"
-  type = string
+  type        = string
 }
 
 variable "username" {
   description = "Master Username"
-  type = string
-  sensitive = true
+  type        = string
+  sensitive   = true
 }
 
 variable "subnet_ids" {
@@ -121,4 +127,3 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
-

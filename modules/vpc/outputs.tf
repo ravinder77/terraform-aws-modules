@@ -15,6 +15,6 @@ output "nat_gateway_id" {
   value = aws_nat_gateway.nat[*].id
 }
 
-output "aws_account_id"  {
-  value = ""
+output "aws_account_id" {
+  value = data.aws_caller_identity.current.account_id
 }
