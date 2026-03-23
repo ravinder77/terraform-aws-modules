@@ -7,4 +7,17 @@ override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
-.terraform.lock.hcl
+.terraform.tfstate.lock.info
+
+# Variable files
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+!*.auto.tfvars.example
+
+# Plans
+*.tfplan
+
+# Editors
+.idea/
+.DS_Store
